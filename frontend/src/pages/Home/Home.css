@@ -1,0 +1,7 @@
+.bg {
+    background-image: url("../../assets/images/chat\ bg\ blue.avif");
+
+    height: 100vh;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
