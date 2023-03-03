@@ -1,10 +1,13 @@
 const express = require('express');
+const connectDB = require('./config/db');
 // const cors = require('cors');
 require('dotenv').config();
 const { chats } = require("./data/data"); // fakeDate
 
+
 const app = express()
 const PORT = process.env.PORT || 5000;
+connectDB();
 
 // middleware
 // app.use(cors());
