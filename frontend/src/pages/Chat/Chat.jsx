@@ -9,6 +9,7 @@ const Chat = () => {
 
         setChats(data);
     }
+    
 
     useEffect(() => {
         fetchChats();
