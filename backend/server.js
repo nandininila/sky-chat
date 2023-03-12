@@ -18,6 +18,8 @@ app.use(express.json()); //to accept JSON data
 // not use cors on client site(frontend), write down proxy server on package.json before dependencies
 //"proxy": "http://127.0.0.1:5000",
 
+
+
 app.get('/', (req, res) => {
     res.send(`API is running on PORT ${PORT}`)
 });
