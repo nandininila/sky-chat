@@ -4,11 +4,12 @@ import {
   InputAdornment,
   IconButton,
   Grid,
-  Button,
   Avatar,
   Typography,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { toast } from "react-hot-toast";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 const SignUp = () => {
   const [firstName, setFirstName] = useState("");
@@ -24,7 +25,11 @@ const SignUp = () => {
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [confirmPasswordError, setConfirmPasswordError] = useState(false);
-  const [profilePic, setProfilePic] = useState(null);
+
+  const [showPic, setShowPic] = useState(null);
+
+  const [pic, setPic] = useState();
+  const [loading, setLoading] = useState(false);
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -34,12 +39,51 @@ const SignUp = () => {
     event.preventDefault();
   };
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setProfilePic(URL.createObjectURL(file));
+  const postDetails = (pics) => {
+    setLoading(true);
+
+    if (pics === undefined) {
+      toast.error("Please Select an Image");
+      return;
+    }
+
+    const cloud_name = "united1234";
+
+    if (pics.type === "image/jpeg" || pics.type === "image/png") {
+      const data = new FormData();
+      data.append("file", pics);
+      data.append("upload_preset", "chat-app");
+      data.append("cloud_name", cloud_name);
+      data.append("folder", "chat-app/chat-user");
+
+      //for fetch
+      const url = `https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`;
+      const options = {
+        method: "post",
+        body: data,
+      };
+
+      fetch(url, options)
+        .then((res) => res.json())
+        .then((data) => {
+          setPic(data.url.toString());
+          console.log(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
+    } else {
+      toast.error("Please Select an Image");
+      setLoading(false);
+      return;
+    }
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
+    setLoading(true);
+
     event.preventDefault();
 
     if (firstName.trim() === "") {
@@ -63,10 +107,8 @@ const SignUp = () => {
       setConfirmPasswordError(false);
     }
 
-
     console.table(firstName, lastName, email, password, confirmPassword);
   };
-
 
   return (
     <form sx={{ flexGrow: 1 }} onSubmit={handleSubmit}>
@@ -190,25 +232,40 @@ const SignUp = () => {
             // style={{ display: "none" }}
             id="profile-pic-upload"
             type="file"
-            onChange={handleFileChange}
+            onChange={(e) => {
+              postDetails(e.target.files[0]);
+
+              const file = e.target.files[0];
+              setShowPic(URL.createObjectURL(file));
+            }}
+            // onChange={(e) => postDetails(e.target.files[0])}
           />
           {/* <label htmlFor="profile-pic-upload">
             <Button variant="contained" component="span">
               Upload Profile Picture
             </Button>
           </label> */}
-          {profilePic && (
+          {showPic && (
             <Avatar
               sx={{ width: 56, height: 56, ml: 2, mt: 1 }}
-              src={profilePic}
+              src={showPic}
             />
           )}
         </Grid>
 
         <Grid item xs={12}>
-          <Button variant="contained" fullWidth type="submit">
-            Sign Up
-          </Button>
+          <LoadingButton
+            size="small"
+            color="primary"
+            type="submit"
+            fullWidth
+            loading={loading}
+            // loadingPosition="start"
+            // startIcon={<RiUserAddFill />}
+            variant="contained"
+          >
+            <span>Sign Up</span>
+          </LoadingButton>
         </Grid>
       </Grid>
     </form>
